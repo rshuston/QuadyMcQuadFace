@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITextFieldDelegate {
+class ViewController: UIViewController {
 
     @IBOutlet weak var o_a_coefficient: UITextField!
     @IBOutlet weak var o_b_coefficient: UITextField!
@@ -16,9 +16,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var o_x1: UILabel!
     @IBOutlet weak var o_x2: UILabel!
     
+    // Track selected text field for applying view adjustments when keyboard is shown
+    var selectedTextField : UITextField? = nil
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Gesture for putting away keyboard when touching outside UITextField
         view.addGestureRecognizer( UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing)) )
         
         o_a_coefficient.text = "0"
@@ -48,7 +52,55 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    // MARK: - UITextFieldDelegate methods
+    override func viewWillAppear(_ animated: Bool) {
+        selectedTextField = nil
+        
+        // Add notifications for tracking show/hide events
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+
+        super.viewDidDisappear(animated)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        // Move screen accordingly so that selected text field is not hidden by keyboard
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            var adjustedFrameOriginY: CGFloat = 0
+            if let textField = selectedTextField {
+                let extraSpaceAboveKeyboard: CGFloat = 8
+                let bottomOfTextField = textField.convert(textField.bounds, to: self.view).maxY + extraSpaceAboveKeyboard
+                let topOfKeyboard = self.view.frame.height - keyboardSize.height
+                if bottomOfTextField > topOfKeyboard {
+                    adjustedFrameOriginY = topOfKeyboard - bottomOfTextField
+                }
+            }
+            self.view.frame.origin.y = adjustedFrameOriginY
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        self.view.frame.origin.y = 0
+    }
+
+}
+
+
+extension ViewController: UITextFieldDelegate {
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        selectedTextField = textField
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        selectedTextField = nil
+    }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
