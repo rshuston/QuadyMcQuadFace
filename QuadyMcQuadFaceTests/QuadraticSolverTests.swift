@@ -10,6 +10,27 @@ import XCTest
 
 class QuadraticSolverTests: XCTestCase {
 
+    func testFindsNoRootsIfAllCoefficientsZero() throws {
+        let result = QuadraticSolver(a: 0.0, b: 0.0, c: 0.0)
+        
+        XCTAssertNil(result.x1)
+        XCTAssertNil(result.x2)
+    }
+
+    func testFindsNoRootsIfABCoefficientsZero() throws {
+        let result = QuadraticSolver(a: 0.0, b: 0.0, c: 1.0)
+        
+        XCTAssertNil(result.x1)
+        XCTAssertNil(result.x2)
+    }
+
+    func testFindsNoRootsIfACCoefficientsZero() throws {
+        let result = QuadraticSolver(a: 0.0, b: 1.0, c: 0.0)
+        
+        XCTAssertNil(result.x1)
+        XCTAssertNil(result.x2)
+    }
+
     func testFindsDistinctRealRoots() throws {
         let result = QuadraticSolver(a: 3.0, b: -9.0, c: 6.0)
         

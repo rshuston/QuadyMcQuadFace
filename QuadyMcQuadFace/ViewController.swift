@@ -46,6 +46,9 @@ class ViewController: UIViewController {
         } else if let x1 = result.x1 as? Complex, let x2 = result.x2 as? Complex {
             o_x1.text = "x1: " + String(format: "%.4f", x1.real) + " " + String(format: "%+.4f", x1.imag) + " i"
             o_x2.text = "x2: " + String(format: "%.4f", x2.real) + " " + String(format: "%+.4f", x2.imag) + " i"
+        } else if let x1 = result.x1 as? Double {
+                o_x1.text = "x: " + String(format: "%.4f", x1)
+                o_x2.text = ""
         } else {
             o_x1.text = "x1: ?"
             o_x2.text = "x2: ?"
@@ -90,7 +93,6 @@ class ViewController: UIViewController {
     }
 
 }
-
 
 extension ViewController: UITextFieldDelegate {
 
